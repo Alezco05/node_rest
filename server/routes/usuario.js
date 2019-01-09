@@ -3,9 +3,9 @@ const app = express();
 const bcrypt = require('bcryptjs');
 const _ = require('underscore');
 const Usuario = require('../models/usuario');
-
-app.get('/usuario', (req, res) => {
-
+const {verificarToken} = require('../middlewares/autenficacion')
+const {verificarUsuario} = require('../middlewares/autenficacion')
+app.get('/usuario', verificarToken, (req, res) => {
     let desde = req.query.desde || 0;
     desde = Number(desde);
     let limite = req.query.limite || 5;
@@ -37,9 +37,8 @@ app.get('/usuario', (req, res) => {
 
 });
 
-app.post('/usuario', (req, res) => {
+app.post('/usuario',[verificarToken,verificarUsuario], (req, res)=> {
     let body = req.body;
-
     let usuario = new Usuario({
         nombre: body.nombre,
         email: body.email,
@@ -48,12 +47,11 @@ app.post('/usuario', (req, res) => {
     });
     usuario.save((err, usuarioDB) => {
         if (err) {
-            return res.status(400).json({
+            return res.status(400 ).json({
                 ok: false,
                 err
             });
         }
-        //usuarioDB.password = null;
         res.json({
             ok: true,
             usuario: usuarioDB
@@ -61,7 +59,7 @@ app.post('/usuario', (req, res) => {
     });
 });
 
-app.put('/usuario/:id', (req, res) => {
+app.put('/usuario/:id',[verificarToken] ,(req, res) => {
     let id = req.params.id;
     //Parametros que se pueden actualizar con la funcion pick del underscore
     let body = _.pick(req.body, ['nombre', 'email', 'img', 'role', 'estado']);
@@ -85,7 +83,7 @@ app.put('/usuario/:id', (req, res) => {
 
 
 
-app.delete('/usuario/:id', (req, res) => {
+app.delete('/usuario/:id',[verificarToken,verificarUsuario] ,(req, res) => {
     let id = req.params.id;
     //Usuario.findByIdAndRemove(id, (err, usuarioBorrado) => {
     let cambiaEstado = {
