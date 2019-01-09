@@ -59,7 +59,7 @@ app.post('/usuario',[verificarToken,verificarUsuario], (req, res)=> {
     });
 });
 
-app.put('/usuario/:id',[verificarToken] ,(req, res) => {
+app.put('/usuario/:id',[verificarToken,verificarUsuario] ,(req, res) => {
     let id = req.params.id;
     //Parametros que se pueden actualizar con la funcion pick del underscore
     let body = _.pick(req.body, ['nombre', 'email', 'img', 'role', 'estado']);
